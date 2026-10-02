@@ -1,0 +1,13 @@
+# Python / FastAPI
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+env/
+venv/
+.env
+
+# Note: If your CSV dataset or model files are very large (>100MB), 
+# uncomment the lines below. Otherwise, keeping them lets judges run it instantly!
+# data/*.csv
+# models/*.pkl
