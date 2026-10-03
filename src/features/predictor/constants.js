@@ -1,0 +1,5 @@
+export const CATEGORIES = ['OPEN','OPEN (PwD)','EWS','EWS (PwD)','OBC-NCL','OBC-NCL (PwD)','SC','SC (PwD)','ST','ST (PwD)']
+export const GENDERS = ['Gender-Neutral','Female-only']
+export const QUOTAS = [['AI','All India (AI)'],['HS','Home State (HS)'],['OS','Other State (OS)'],['GO','Goa (GO)'],['JK','Jammu & Kashmir (JK)'],['LA','Ladakh (LA)']]
+export const BRANCHES = ['Computer Science and Engineering','Civil Engineering','Mechanical Engineering','Electrical Engineering','Electronics and Communication Engineering','Information Technology','Chemical Engineering','Mathematics and Computing','Artificial Intelligence and Data Science']
+export const CHANCES = ['Safe','Target','Reach']

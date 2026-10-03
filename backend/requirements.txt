@@ -1,0 +1,4 @@
+fastapi>=0.115
+uvicorn[standard]>=0.30
+pydantic>=2.7
+# Add whatever your pickled model needs, with the SAME versions you trained with (e.g. scikit-learn, pandas, numpy, xgboost)

@@ -1,0 +1,42 @@
+{
+  "total_unique_choices_found": 6,
+  "latest_year_reference": 2025,
+  "portfolio_risk_audit": {
+    "safe_options": 2,
+    "target_options": 2,
+    "reach_options": 2,
+    "portfolio_health": "Balanced"
+  },
+  "optimized_choice_list": [
+    {
+      "institute": "Indian Institute of Technology Bombay",
+      "branch": "Computer Science and Engineering (4 Years, Bachelor of Technology)",
+      "expected_closing_rank": 68
+    },
+    {
+      "institute": "Indian Institute of Technology Bombay",
+      "branch": "Civil Engineering (4 Years, Bachelor of Technology)",
+      "expected_closing_rank": 3500
+    },
+    {
+      "institute": "Indian Institute of Technology Delhi",
+      "branch": "Civil Engineering (4 Years, Bachelor of Technology)",
+      "expected_closing_rank": 4200
+    },
+    {
+      "institute": "Indian Institute of Technology Kharagpur",
+      "branch": "Civil Engineering (4 Years, Bachelor of Technology)",
+      "expected_closing_rank": 5800
+    },
+    {
+      "institute": "National Institute of Technology Tiruchirappalli",
+      "branch": "Computer Science and Engineering (4 Years, Bachelor of Technology)",
+      "expected_closing_rank": 1500
+    },
+    {
+      "institute": "National Institute of Technology Tiruchirappalli",
+      "branch": "Civil Engineering (4 Years, Bachelor of Technology)",
+      "expected_closing_rank": 18000
+    }
+  ]
+}

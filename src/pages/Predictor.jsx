@@ -10,6 +10,7 @@ export default function Predictor() {
   const [preferredBranch, setPreferredBranch] = useState('');
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [activeFilter, setActiveFilter] = useState('All');
 
   const [shortlisted, setShortlisted] = useState(() => {
     return JSON.parse(localStorage.getItem('shortlist') || '[]');
@@ -29,7 +30,21 @@ export default function Predictor() {
         quota,
         preferredBranch,
       });
-      setResults(matches);
+
+      // Priority sort: Safe (1) -> Target (2) -> Reach (3), then by probability descending
+      const CATEGORY_PRIORITY = { safe: 1, target: 2, reach: 3 };
+      const sortedMatches = [...matches].sort((a, b) => {
+        const tagA = a.tag?.toLowerCase();
+        const tagB = b.tag?.toLowerCase();
+        const priorityDiff = (CATEGORY_PRIORITY[tagA] || 9) - (CATEGORY_PRIORITY[tagB] || 9);
+        if (priorityDiff !== 0) return priorityDiff;
+
+        const probA = parseFloat(a.prob) || a.probNum || 0;
+        const probB = parseFloat(b.prob) || b.probNum || 0;
+        return probB - probA;
+      });
+
+      setResults(sortedMatches);
     } catch (err) {
       console.error('Failed to load cutoff dataset:', err);
     } finally {
@@ -47,6 +62,10 @@ export default function Predictor() {
     setShortlisted(updated);
     localStorage.setItem('shortlist', JSON.stringify(updated));
   };
+
+  const filteredResults = results
+    ? results.filter((item) => activeFilter === 'All' || item.tag?.toLowerCase() === activeFilter.toLowerCase())
+    : [];
 
   return (
     <div className="wrap animate-page-entry" style={{ padding: '2.5rem 1.5rem' }}>
@@ -215,10 +234,10 @@ export default function Predictor() {
             </div>
           ) : (
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
                 <div>
                   <h2 style={{ fontSize: '1.5rem', fontWeight: '800', color: '#fff' }}>
-                    Predicted Colleges ({results.length})
+                    Predicted Colleges ({filteredResults.length})
                   </h2>
                   <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
                     Matching rank #{parseInt(rank).toLocaleString()} ({category}, {quota})
@@ -226,9 +245,33 @@ export default function Predictor() {
                 </div>
               </div>
 
-              {results.length === 0 ? (
+              {/* Filter Pills Bar */}
+              <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem' }}>
+                {['All', 'Safe', 'Target', 'Reach'].map((filter) => (
+                  <button
+                    key={filter}
+                    type="button"
+                    onClick={() => setActiveFilter(filter)}
+                    style={{
+                      padding: '0.4rem 1rem',
+                      borderRadius: '20px',
+                      fontSize: '0.85rem',
+                      fontWeight: '600',
+                      cursor: 'pointer',
+                      border: '1px solid rgba(255, 255, 255, 0.15)',
+                      backgroundColor: activeFilter === filter ? '#f59e0b' : 'transparent',
+                      color: activeFilter === filter ? '#0d1323' : '#fff',
+                      transition: 'all 0.2s ease',
+                    }}
+                  >
+                    {filter}
+                  </button>
+                ))}
+              </div>
+
+              {filteredResults.length === 0 ? (
                 <p style={{ color: 'var(--text-muted)', padding: '2rem 0' }}>
-                  No college branches matched your specific criteria. Try selecting "All Branches" or adjusting your rank.
+                  No colleges found under the selected "{activeFilter}" filter.
                 </p>
               ) : (
                 <div style={{ overflowX: 'auto' }}>
@@ -243,7 +286,7 @@ export default function Predictor() {
                       </tr>
                     </thead>
                     <tbody>
-                      {results.map((item, idx) => {
+                      {filteredResults.map((item, idx) => {
                         const isSaved = shortlisted.some(
                           (s) => s.institute === item.institute && s.branch === item.branch
                         );
@@ -260,14 +303,14 @@ export default function Predictor() {
                             <td style={{ padding: '1rem', color: '#d1d5db', fontSize: '0.9rem' }}>{item.branch}</td>
                             <td style={{ padding: '1rem', fontWeight: '700', color: '#fff', whiteSpace: 'nowrap' }}>{item.expRank.toLocaleString()}</td>
                             <td style={{ padding: '1rem', whiteSpace: 'nowrap' }}>
-                              <span className={`sample-card-tag ${item.tag}`} style={{
+                              <span className={`sample-card-tag ${item.tag?.toLowerCase()}`} style={{
                                 display: 'inline-block',
                                 whiteSpace: 'nowrap',
                                 textTransform: 'capitalize',
                                 padding: '0.3rem 0.75rem',
                                 borderRadius: '99px',
-                                backgroundColor: item.tag === 'safe' ? 'rgba(52, 211, 153, 0.12)' : item.tag === 'target' ? 'rgba(245, 158, 11, 0.12)' : 'rgba(248, 113, 113, 0.12)',
-                                border: `1px solid ${item.tag === 'safe' ? 'var(--safe-color)' : item.tag === 'target' ? 'var(--target-color)' : 'var(--reach-color)'}`
+                                backgroundColor: item.tag?.toLowerCase() === 'safe' ? 'rgba(52, 211, 153, 0.12)' : item.tag?.toLowerCase() === 'target' ? 'rgba(245, 158, 11, 0.12)' : 'rgba(248, 113, 113, 0.12)',
+                                border: `1px solid ${item.tag?.toLowerCase() === 'safe' ? 'var(--safe-color)' : item.tag?.toLowerCase() === 'target' ? 'var(--target-color)' : 'var(--reach-color)'}`
                               }}>
                                 {item.tag} {item.prob ? `(${item.prob})` : ''}
                               </span>
