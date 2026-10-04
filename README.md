@@ -4,7 +4,7 @@ HOSTED ON theseatwise.vercel.app
 
 ### AI-Powered JoSAA College & Branch Prediction Platform
 
-**theSeatWise** is a machine-learning powered platform designed to help JEE aspirants make better decisions during **JoSAA counselling**.
+**SeatWise** is a machine-learning powered platform designed to help JEE aspirants make better decisions during **JoSAA counselling**.
 
 It combines historical JoSAA cutoff data, machine learning, rank-based analysis, and institute prioritization to generate relevant **college and branch recommendations** for students.
 
