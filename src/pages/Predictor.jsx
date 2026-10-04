@@ -1,6 +1,14 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { loadCutoffsData, getPredictions, BRANCH_OPTIONS } from '../utils/predictionEngine';
+import { readShortlist, writeShortlist } from '../utils/shortlist';
 import '../styles/animations.css';
+
+const CATEGORY_PRIORITY = { safe: 1, target: 2, reach: 3 };
+const FILTERS = ['All', 'Safe', 'Target', 'Reach'];
+
+function Field({ label, children }) {
+  return <label className="field-label">{label}{children}</label>;
+}
 
 export default function Predictor() {
   const [rank, setRank] = useState('');
@@ -10,57 +18,50 @@ export default function Predictor() {
   const [preferredBranch, setPreferredBranch] = useState('');
   const [results, setResults] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
   const [activeFilter, setActiveFilter] = useState('All');
-
-  const [shortlisted, setShortlisted] = useState(() => {
-    return JSON.parse(localStorage.getItem('shortlist') || '[]');
-  });
+  const [shortlisted, setShortlisted] = useState(readShortlist);
+  const resultsRef = useRef(null);
 
   const handlePredict = async (e) => {
     e.preventDefault();
     if (!rank) return;
 
     setLoading(true);
+    setError('');
     try {
       const cutoffsData = await loadCutoffsData();
-      const matches = getPredictions(cutoffsData, {
-        rank,
-        category,
-        gender,
-        quota,
-        preferredBranch,
-      });
+      const matches = getPredictions(cutoffsData, { rank, category, gender, quota, preferredBranch });
 
       // Priority sort: Safe (1) -> Target (2) -> Reach (3), then by probability descending
-      const CATEGORY_PRIORITY = { safe: 1, target: 2, reach: 3 };
       const sortedMatches = [...matches].sort((a, b) => {
-        const tagA = a.tag?.toLowerCase();
-        const tagB = b.tag?.toLowerCase();
-        const priorityDiff = (CATEGORY_PRIORITY[tagA] || 9) - (CATEGORY_PRIORITY[tagB] || 9);
+        const priorityDiff = (CATEGORY_PRIORITY[a.tag?.toLowerCase()] || 9) - (CATEGORY_PRIORITY[b.tag?.toLowerCase()] || 9);
         if (priorityDiff !== 0) return priorityDiff;
-
         const probA = parseFloat(a.prob) || a.probNum || 0;
         const probB = parseFloat(b.prob) || b.probNum || 0;
         return probB - probA;
       });
 
       setResults(sortedMatches);
+      // On phones the results sit below the form, so scroll them into view
+      if (window.matchMedia('(max-width: 900px)').matches) {
+        requestAnimationFrame(() => resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
+      }
     } catch (err) {
       console.error('Failed to load cutoff dataset:', err);
+      setError('Could not load the cutoff data. Check your connection and try again.');
     } finally {
       setLoading(false);
     }
   };
 
-  const handleShortlist = (item) => {
-    const isSaved = shortlisted.some(
-      (s) => s.institute === item.institute && s.branch === item.branch
-    );
-    if (isSaved) return;
+  const isSaved = (item) => shortlisted.some((s) => s.institute === item.institute && s.branch === item.branch);
 
+  const handleShortlist = (item) => {
+    if (isSaved(item)) return;
     const updated = [...shortlisted, item];
     setShortlisted(updated);
-    localStorage.setItem('shortlist', JSON.stringify(updated));
+    writeShortlist(updated);
   };
 
   const filteredResults = results
@@ -68,202 +69,78 @@ export default function Predictor() {
     : [];
 
   return (
-    <div className="wrap animate-page-entry" style={{ padding: '2.5rem 1.5rem' }}>
-      <div style={{ display: 'grid', gridTemplateColumns: '340px 1fr', gap: '2rem', alignItems: 'start' }}>
-        
-        {/* Left Form Sticky Panel */}
-        <form
-          className="feature-card interactive-card"
-          onSubmit={handlePredict}
-          style={{ position: 'sticky', top: '90px' }}
-        >
-          <h2 style={{ fontSize: '1.25rem', fontWeight: '800', marginBottom: '1.25rem', color: '#fff' }}>
-            Find College Options
-          </h2>
+    <div className="wrap predictor-page animate-page-entry">
+      <div className="predictor-layout">
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-            <label style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--text-muted)' }}>
-              JEE Rank
-              <input
-                type="number"
-                placeholder="e.g. 8500"
-                value={rank}
-                onChange={(e) => setRank(e.target.value)}
-                required
-                style={{
-                  width: '100%',
-                  marginTop: '0.35rem',
-                  padding: '0.65rem 0.85rem',
-                  borderRadius: '8px',
-                  border: '1px solid var(--card-border)',
-                  backgroundColor: '#0f1b2c',
-                  color: '#fff',
-                  fontSize: '0.95rem'
-                }}
-              />
-            </label>
+        <form className="feature-card predictor-form" onSubmit={handlePredict}>
+          <h2 className="form-title">Find College Options</h2>
+          <div className="form-fields">
+            <Field label="JEE Rank">
+              <input className="field-control" type="number" inputMode="numeric" min="1" placeholder="e.g. 8500"
+                value={rank} onChange={(e) => setRank(e.target.value)} required />
+            </Field>
 
-            <label style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--text-muted)' }}>
-              Seat Category
-              <select
-                value={category}
-                onChange={(e) => setCategory(e.target.value)}
-                style={{
-                  width: '100%',
-                  marginTop: '0.35rem',
-                  padding: '0.65rem 0.85rem',
-                  borderRadius: '8px',
-                  border: '1px solid var(--card-border)',
-                  backgroundColor: '#0f1b2c',
-                  color: '#fff',
-                  fontSize: '0.95rem'
-                }}
-              >
+            <Field label="Seat Category">
+              <select className="field-control" value={category} onChange={(e) => setCategory(e.target.value)}>
                 <option value="OPEN">OPEN (General)</option>
                 <option value="EWS">EWS</option>
                 <option value="OBC-NCL">OBC-NCL</option>
                 <option value="SC">SC</option>
                 <option value="ST">ST</option>
               </select>
-            </label>
+            </Field>
 
-            <label style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--text-muted)' }}>
-              Gender Pool
-              <select
-                value={gender}
-                onChange={(e) => setGender(e.target.value)}
-                style={{
-                  width: '100%',
-                  marginTop: '0.35rem',
-                  padding: '0.65rem 0.85rem',
-                  borderRadius: '8px',
-                  border: '1px solid var(--card-border)',
-                  backgroundColor: '#0f1b2c',
-                  color: '#fff',
-                  fontSize: '0.95rem'
-                }}
-              >
+            <Field label="Gender Pool">
+              <select className="field-control" value={gender} onChange={(e) => setGender(e.target.value)}>
                 <option value="Gender-Neutral">Gender-Neutral</option>
                 <option value="Female-only">Female-Only</option>
               </select>
-            </label>
+            </Field>
 
-            <label style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--text-muted)' }}>
-              Quota
-              <select
-                value={quota}
-                onChange={(e) => setQuota(e.target.value)}
-                style={{
-                  width: '100%',
-                  marginTop: '0.35rem',
-                  padding: '0.65rem 0.85rem',
-                  borderRadius: '8px',
-                  border: '1px solid var(--card-border)',
-                  backgroundColor: '#0f1b2c',
-                  color: '#fff',
-                  fontSize: '0.95rem'
-                }}
-              >
+            <Field label="Quota">
+              <select className="field-control" value={quota} onChange={(e) => setQuota(e.target.value)}>
                 <option value="All India (AI)">All India (AI)</option>
                 <option value="Home State (HS)">Home State (HS)</option>
                 <option value="Other State (OS)">Other State (OS)</option>
               </select>
-            </label>
+            </Field>
 
-            <label style={{ fontSize: '0.85rem', fontWeight: '600', color: 'var(--text-muted)' }}>
-              Preferred Branch
-              <select
-                value={preferredBranch}
-                onChange={(e) => setPreferredBranch(e.target.value)}
-                style={{
-                  width: '100%',
-                  marginTop: '0.35rem',
-                  padding: '0.65rem 0.85rem',
-                  borderRadius: '8px',
-                  border: '1px solid var(--card-border)',
-                  backgroundColor: '#0f1b2c',
-                  color: '#fff',
-                  fontSize: '0.95rem'
-                }}
-              >
+            <Field label="Preferred Branch">
+              <select className="field-control" value={preferredBranch} onChange={(e) => setPreferredBranch(e.target.value)}>
                 {BRANCH_OPTIONS.map((opt) => (
-                  <option key={opt.value} value={opt.value}>
-                    {opt.label}
-                  </option>
+                  <option key={opt.value} value={opt.value}>{opt.label}</option>
                 ))}
               </select>
-            </label>
+            </Field>
 
-            <button
-              type="submit"
-              className="btn btn-yellow"
-              disabled={loading}
-              style={{ width: '100%', marginTop: '0.5rem' }}
-            >
+            <button type="submit" className="btn btn-yellow submit-btn" disabled={loading}>
               {loading ? 'Analyzing Cutoffs...' : 'Predict Colleges'}
             </button>
+            {error && <p className="error-msg" role="alert">{error}</p>}
           </div>
         </form>
 
-        {/* Right Results Panel */}
-        <div className="feature-card interactive-card" style={{ minHeight: '480px', padding: '1.75rem' }}>
+        <div className="feature-card results-panel" ref={resultsRef} aria-live="polite">
           {!results ? (
-            <div style={{ padding: '4rem 2rem', textAlign: 'center', color: 'var(--text-muted)' }}>
-              <div style={{
-                display: 'inline-flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                width: '56px',
-                height: '56px',
-                borderRadius: '12px',
-                backgroundColor: 'rgba(245, 158, 11, 0.1)',
-                color: 'var(--accent-yellow)',
-                marginBottom: '1.25rem'
-              }}>
-                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <div className="results-empty">
+              <div className="results-icon">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                   <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
                   <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
                 </svg>
               </div>
-              <h3 style={{ fontSize: '1.5rem', fontWeight: '800', color: '#fff', marginBottom: '0.5rem' }}>
-                Your matched colleges will appear here
-              </h3>
-              <p style={{ maxWidth: '420px', margin: '0 auto', fontSize: '0.95rem', lineHeight: '1.5' }}>
-                Enter your JEE rank and preferences on the left panel to calculate your allocation odds.
-              </p>
+              <h3>Your matched colleges will appear here</h3>
+              <p>Enter your JEE rank and preferences in the form to calculate your allocation odds.</p>
             </div>
           ) : (
             <div>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.25rem' }}>
-                <div>
-                  <h2 style={{ fontSize: '1.5rem', fontWeight: '800', color: '#fff' }}>
-                    Predicted Colleges ({filteredResults.length})
-                  </h2>
-                  <p style={{ fontSize: '0.875rem', color: 'var(--text-muted)', marginTop: '0.2rem' }}>
-                    Matching rank #{parseInt(rank).toLocaleString()} ({category}, {quota})
-                  </p>
-                </div>
-              </div>
+              <h2 className="results-title">Predicted Colleges ({filteredResults.length})</h2>
+              <p className="results-sub">Matching rank #{parseInt(rank).toLocaleString()} ({category}, {quota})</p>
 
-              {/* Filter Pills Bar */}
-              <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem' }}>
-                {['All', 'Safe', 'Target', 'Reach'].map((filter) => (
-                  <button
-                    key={filter}
-                    type="button"
-                    onClick={() => setActiveFilter(filter)}
-                    style={{
-                      padding: '0.4rem 1rem',
-                      borderRadius: '20px',
-                      fontSize: '0.85rem',
-                      fontWeight: '600',
-                      cursor: 'pointer',
-                      border: '1px solid rgba(255, 255, 255, 0.15)',
-                      backgroundColor: activeFilter === filter ? '#f59e0b' : 'transparent',
-                      color: activeFilter === filter ? '#0d1323' : '#fff',
-                      transition: 'all 0.2s ease',
-                    }}
-                  >
+              <div className="filter-pills">
+                {FILTERS.map((filter) => (
+                  <button key={filter} type="button" aria-pressed={activeFilter === filter}
+                    className={`filter-pill${activeFilter === filter ? ' active' : ''}`} onClick={() => setActiveFilter(filter)}>
                     {filter}
                   </button>
                 ))}
@@ -274,56 +151,28 @@ export default function Predictor() {
                   No colleges found under the selected "{activeFilter}" filter.
                 </p>
               ) : (
-                <div style={{ overflowX: 'auto' }}>
-                  <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                <div className="table-scroll">
+                  <table className="results-table">
                     <thead>
-                      <tr style={{ borderBottom: '1px solid var(--card-border)' }}>
-                        <th style={{ padding: '0.75rem 1rem', fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: '600' }}>Institute</th>
-                        <th style={{ padding: '0.75rem 1rem', fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: '600' }}>Branch</th>
-                        <th style={{ padding: '0.75rem 1rem', fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: '600', whiteSpace: 'nowrap' }}>Closing Rank</th>
-                        <th style={{ padding: '0.75rem 1rem', fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: '600', whiteSpace: 'nowrap' }}>Chance</th>
-                        <th style={{ padding: '0.75rem 1rem', fontSize: '0.85rem', color: 'var(--text-muted)', fontWeight: '600', whiteSpace: 'nowrap' }}>Action</th>
+                      <tr>
+                        <th>Institute</th><th>Branch</th>
+                        <th className="nowrap">Closing Rank</th><th className="nowrap">Chance</th><th className="nowrap">Action</th>
                       </tr>
                     </thead>
                     <tbody>
                       {filteredResults.map((item, idx) => {
-                        const isSaved = shortlisted.some(
-                          (s) => s.institute === item.institute && s.branch === item.branch
-                        );
+                        const tag = item.tag?.toLowerCase();
                         return (
-                          <tr
-                            key={idx}
-                            className="animate-table-row"
-                            style={{
-                              borderBottom: '1px solid var(--card-border)',
-                              animationDelay: `${Math.min(idx * 0.04, 0.4)}s`
-                            }}
-                          >
-                            <td style={{ padding: '1rem', fontWeight: '700', color: '#fff' }}>{item.institute}</td>
-                            <td style={{ padding: '1rem', color: '#d1d5db', fontSize: '0.9rem' }}>{item.branch}</td>
-                            <td style={{ padding: '1rem', fontWeight: '700', color: '#fff', whiteSpace: 'nowrap' }}>{item.expRank.toLocaleString()}</td>
-                            <td style={{ padding: '1rem', whiteSpace: 'nowrap' }}>
-                              <span className={`sample-card-tag ${item.tag?.toLowerCase()}`} style={{
-                                display: 'inline-block',
-                                whiteSpace: 'nowrap',
-                                textTransform: 'capitalize',
-                                padding: '0.3rem 0.75rem',
-                                borderRadius: '99px',
-                                backgroundColor: item.tag?.toLowerCase() === 'safe' ? 'rgba(52, 211, 153, 0.12)' : item.tag?.toLowerCase() === 'target' ? 'rgba(245, 158, 11, 0.12)' : 'rgba(248, 113, 113, 0.12)',
-                                border: `1px solid ${item.tag?.toLowerCase() === 'safe' ? 'var(--safe-color)' : item.tag?.toLowerCase() === 'target' ? 'var(--target-color)' : 'var(--reach-color)'}`
-                              }}>
-                                {item.tag} {item.prob ? `(${item.prob})` : ''}
-                              </span>
+                          <tr key={idx} className="animate-table-row" style={{ animationDelay: `${Math.min(idx * 0.04, 0.4)}s` }}>
+                            <td className="cell-institute">{item.institute}</td>
+                            <td className="cell-branch">{item.branch}</td>
+                            <td className="cell-rank nowrap" data-label="Closing rank">{item.expRank.toLocaleString()}</td>
+                            <td className="nowrap">
+                              <span className={`chance-tag ${tag}`}>{item.tag} {item.prob ? `(${item.prob})` : ''}</span>
                             </td>
-                            <td style={{ padding: '1rem', whiteSpace: 'nowrap' }}>
-                              <button
-                                type="button"
-                                className="btn btn-secondary"
-                                style={{ padding: '0.4rem 0.85rem', fontSize: '0.85rem', whiteSpace: 'nowrap' }}
-                                disabled={isSaved}
-                                onClick={() => handleShortlist(item)}
-                              >
-                                {isSaved ? 'Saved' : '+ Shortlist'}
+                            <td className="cell-action nowrap">
+                              <button type="button" className="btn btn-secondary shortlist-btn" disabled={isSaved(item)} onClick={() => handleShortlist(item)}>
+                                {isSaved(item) ? 'Saved' : '+ Shortlist'}
                               </button>
                             </td>
                           </tr>

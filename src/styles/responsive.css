@@ -1,0 +1,110 @@
+/* Import this right AFTER index.css in main.jsx so it can override it. */
+html { -webkit-text-size-adjust: 100%; }
+.app { min-height: 100dvh; } /* index.css keeps 100vh as the fallback for older browsers */
+
+/* ---------- Predictor page (desktop look unchanged) ---------- */
+.predictor-page { padding: 2.5rem 1.5rem; }
+.predictor-layout { display: grid; grid-template-columns: 340px 1fr; gap: 2rem; align-items: start; }
+.predictor-form { position: sticky; top: 90px; }
+.form-title { font-size: 1.25rem; font-weight: 800; margin-bottom: 1.25rem; color: #fff; }
+.form-fields { display: flex; flex-direction: column; gap: 1rem; }
+.field-label { font-size: 0.85rem; font-weight: 600; color: var(--text-muted); }
+.field-control { width: 100%; margin-top: 0.35rem; padding: 0.65rem 0.85rem; border-radius: 8px; border: 1px solid var(--card-border);
+  background-color: #0f1b2c; color: #fff; font-family: inherit; font-size: 0.95rem; }
+.field-control:focus-visible, .filter-pill:focus-visible { outline: 2px solid var(--accent-yellow); outline-offset: 2px; }
+.btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.submit-btn { width: 100%; margin-top: 0.5rem; }
+
+.results-panel { min-height: 480px; padding: 1.75rem; scroll-margin-top: 5rem; }
+.results-empty { padding: 4rem 2rem; text-align: center; color: var(--text-muted); }
+.results-empty h3 { font-size: 1.5rem; font-weight: 800; color: #fff; margin-bottom: 0.5rem; }
+.results-empty p { max-width: 420px; margin: 0 auto; font-size: 0.95rem; line-height: 1.5; }
+.results-icon { display: inline-flex; align-items: center; justify-content: center; width: 56px; height: 56px; border-radius: 12px;
+  background-color: rgba(245, 158, 11, 0.1); color: var(--accent-yellow); margin-bottom: 1.25rem; }
+.results-title { font-size: 1.5rem; font-weight: 800; color: #fff; }
+.results-sub { font-size: 0.875rem; color: var(--text-muted); margin: 0.2rem 0 1.25rem; }
+.error-msg { color: var(--reach-color); margin-top: 1rem; font-size: 0.9rem; }
+
+.filter-pills { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1.5rem; }
+.filter-pill { padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.85rem; font-weight: 600; cursor: pointer; font-family: inherit;
+  border: 1px solid rgba(255, 255, 255, 0.15); background-color: transparent; color: #fff; transition: all 0.2s ease; }
+.filter-pill.active { background-color: #f59e0b; color: #0d1323; }
+
+.table-scroll { overflow-x: auto; }
+.results-table { width: 100%; border-collapse: collapse; text-align: left; }
+.results-table thead tr, .results-table tbody tr { border-bottom: 1px solid var(--card-border); }
+.results-table th { padding: 0.75rem 1rem; font-size: 0.85rem; color: var(--text-muted); font-weight: 600; }
+.results-table td { padding: 1rem; }
+.nowrap { white-space: nowrap; }
+.cell-institute { font-weight: 700; color: #fff; }
+.cell-branch { color: #d1d5db; font-size: 0.9rem; }
+.cell-rank { font-weight: 700; color: #fff; }
+.chance-tag { display: inline-block; white-space: nowrap; text-transform: capitalize; padding: 0.3rem 0.75rem; border-radius: 99px;
+  font-size: 0.85rem; font-weight: 600; border: 1px solid; }
+.chance-tag.safe { color: var(--safe-color); border-color: var(--safe-color); background-color: rgba(52, 211, 153, 0.12); }
+.chance-tag.target { color: var(--target-color); border-color: var(--target-color); background-color: rgba(245, 158, 11, 0.12); }
+.chance-tag.reach { color: var(--reach-color); border-color: var(--reach-color); background-color: rgba(248, 113, 113, 0.12); }
+.shortlist-btn { padding: 0.4rem 0.85rem; font-size: 0.85rem; white-space: nowrap; }
+
+/* ---------- Tablets and phones ---------- */
+@media (max-width: 900px) {
+  .predictor-page { padding: 1.5rem 1rem; }
+  .predictor-layout { grid-template-columns: 1fr; gap: 1.25rem; }
+  .predictor-form { position: static; }
+  .results-panel { min-height: 0; padding: 1.25rem; }
+  .results-empty { padding: 2rem 1rem; }
+}
+
+/* Table rows turn into cards */
+@media (max-width: 700px) {
+  .results-table thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .results-table, .results-table tbody { display: block; }
+  .results-table tbody tr { display: grid; grid-template-columns: 1fr auto; gap: 0.4rem 0.75rem; align-items: center;
+    padding: 1rem; margin-bottom: 0.75rem; border: 1px solid var(--card-border); border-radius: 12px; background-color: rgba(255, 255, 255, 0.02); }
+  .results-table td { display: block; padding: 0; }
+  .cell-institute, .cell-branch, .cell-action { grid-column: 1 / -1; }
+  .cell-institute { font-size: 1rem; }
+  .cell-rank::before { content: attr(data-label) ": "; color: var(--text-muted); font-weight: 500; }
+  .cell-action .btn { width: 100%; }
+}
+
+@media (max-width: 600px) {
+  .wrap { padding: 0 1rem; }
+  .logo { font-size: 1.5rem; }
+  .results-title { font-size: 1.25rem; }
+}
+
+/* Touch screens: 16px text stops iPhones zooming into inputs; 44px is the minimum comfortable tap size */
+@media (pointer: coarse) {
+  .field-control { font-size: 16px; min-height: 44px; }
+  .btn, .filter-pill, .nav-link { min-height: 44px; }
+  .nav-link { display: inline-flex; align-items: center; }
+}
+
+/* ---------- Navbar ---------- */
+@media (prefers-reduced-motion: no-preference) { html { scroll-behavior: smooth; } }
+.navbar { position: sticky; top: 0; z-index: 50; }
+.nav-cta { padding: 0.5rem 1.1rem; font-size: 0.9rem; }
+.nav-toggle { display: none; width: 44px; height: 44px; align-items: center; justify-content: center; cursor: pointer;
+  background: none; border: 1px solid var(--card-border); border-radius: 8px; color: var(--text-main); }
+.nav-toggle:focus-visible { outline: 2px solid var(--accent-yellow); outline-offset: 2px; }
+.nav-toggle-bars, .nav-toggle-bars::before, .nav-toggle-bars::after { display: block; width: 20px; height: 2px; background: currentColor;
+  border-radius: 2px; transition: transform 0.25s ease, top 0.25s ease, background-color 0.2s ease; }
+.nav-toggle-bars { position: relative; }
+.nav-toggle-bars::before, .nav-toggle-bars::after { content: ''; position: absolute; left: 0; }
+.nav-toggle-bars::before { top: -6px; }
+.nav-toggle-bars::after { top: 6px; }
+.nav-toggle[aria-expanded="true"] .nav-toggle-bars { background: transparent; }
+.nav-toggle[aria-expanded="true"] .nav-toggle-bars::before { top: 0; transform: rotate(45deg); }
+.nav-toggle[aria-expanded="true"] .nav-toggle-bars::after { top: 0; transform: rotate(-45deg); }
+
+@media (max-width: 720px) {
+  .navbar { padding: 0.75rem 0; }
+  .nav-toggle { display: inline-flex; }
+  .nav-links { display: none; position: absolute; top: 100%; left: 0; right: 0; flex-direction: column; align-items: stretch; gap: 0.25rem;
+    padding: 0.75rem 1rem 1rem; background-color: var(--bg); border-bottom: 1px solid var(--card-border); box-shadow: 0 18px 30px rgba(0, 0, 0, 0.35); }
+  .nav-links.open { display: flex; }
+  .nav-links .nav-link { display: flex; align-items: center; padding: 0.75rem 0.6rem; font-size: 1rem; border-radius: 8px; }
+  .nav-links .nav-link.active { background-color: rgba(255, 255, 255, 0.06); }
+  .nav-links .nav-cta { margin-top: 0.5rem; padding: 0.8rem 1rem; font-size: 1rem; }
+}

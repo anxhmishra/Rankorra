@@ -1,392 +1,105 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import '../styles/animations.css';
+import '../styles/landing.css';
+
+const LADDER = [
+  { cls: 'reach', name: 'NIT Trichy', branch: 'Computer Science', rank: '1,420', label: 'Reach' },
+  { cls: 'target', name: 'NIT Warangal', branch: 'Electronics & Comm.', rank: '3,980', label: 'Target' },
+  { cls: 'safe', name: 'IIIT Allahabad', branch: 'Information Technology', rank: '6,210', label: 'Safe' },
+];
+
+const FEATURES = [
+  ['Trained on past cutoffs', 'Our model learns from previous JoSAA rounds, so results follow real closing ranks.'],
+  ['Made for your profile', 'Rank, category, gender and home state all change which seats you can get. We account for every one.'],
+  ['Safe, target or reach', 'Every option is tagged, so you can build a choice list with a sensible spread.'],
+  ['Branch-first search', 'Pick the branches you care about and see only those, across all institutes.'],
+];
+
+const STEPS = [
+  ['Enter your details', 'Rank, category, gender and quota.'],
+  ['Pick a branch', 'Choose the branch you would like to study.'],
+  ['Review your list', 'Filter by chance level and shortlist the seats that fit.'],
+];
+
+const Divider = () => <div className="lp-divider" />;
 
 export default function Landing() {
   return (
-    <div className="animate-page-entry" style={{ width: '100%', overflowX: 'hidden' }}>
-      
-      {/* ---------------- 1. HERO SECTION ---------------- */}
-      <section style={{ padding: '4.5rem 1.5rem 5rem 1.5rem', minHeight: '80vh', display: 'flex', alignItems: 'center' }}>
-        <div className="wrap" style={{ width: '100%', maxWidth: '1200px', margin: '0 auto' }}>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
-            gap: '3.5rem',
-            alignItems: 'center'
-          }}>
-            
-            {/* Left Column: Hero Text & CTAs */}
-            <div className="animate-fade-in-up" style={{ maxWidth: '620px' }}>
-              <h1 style={{
-                fontSize: 'clamp(2.5rem, 5vw, 3.8rem)',
-                fontWeight: '800',
-                lineHeight: '1.1',
-                color: '#ffffff',
-                letterSpacing: '-0.03em',
-                marginBottom: '1.5rem'
-              }}>
-                Know where your rank can take you, before choice filling begins.
-              </h1>
+    <div className="lp-page animate-page-entry">
 
-              <p style={{
-                fontSize: '1.15rem',
-                lineHeight: '1.6',
-                color: '#94a3b8',
-                marginBottom: '2.25rem',
-                fontWeight: '400'
-              }}>
-                SeatWise predicts which IITs, NITs, IIITs and GFTIs you can realistically get, using your JEE rank and past JoSAA cutoffs.
-              </p>
-
-              <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-                <Link
-                  to="/predictor"
-                  className="btn btn-yellow"
-                  style={{
-                    padding: '0.85rem 1.75rem',
-                    fontSize: '1.05rem',
-                    fontWeight: '700',
-                    borderRadius: '10px',
-                    transition: 'all 0.25s ease'
-                  }}
-                >
-                  Find my colleges
-                </Link>
-
-                <a
-                  href="#how-it-works"
-                  className="btn btn-secondary"
-                  style={{
-                    padding: '0.85rem 1.75rem',
-                    fontSize: '1.05rem',
-                    fontWeight: '600',
-                    borderRadius: '10px',
-                    backgroundColor: 'transparent',
-                    border: '1px solid rgba(255, 255, 255, 0.2)',
-                    color: '#fff',
-                    transition: 'all 0.25s ease'
-                  }}
-                >
-                  How it works
-                </a>
-              </div>
+      <section className="lp-hero">
+        <div className="lp-inner lp-hero-grid">
+          <div className="lp-copy animate-fade-in-up">
+            <h1 className="lp-title">Know where your rank can take you, before choice filling begins.</h1>
+            <p className="lp-lead">
+              SeatWise predicts which IITs, NITs, IIITs and GFTIs you can realistically get, using your JEE rank and past JoSAA cutoffs.
+            </p>
+            <div className="lp-actions">
+              <Link to="/predictor" className="btn btn-yellow lp-btn-main">Find my colleges</Link>
+              <a href="#how-it-works" className="btn btn-secondary lp-btn-ghost lp-btn-main">How it works</a>
             </div>
+          </div>
 
-            {/* Right Column: Animated Ladder Cards */}
-            <div className="animate-ladder-float" style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
-              
-              {/* Card 1: Reach */}
-              <div className="ladder-card reach">
+          <div className="lp-ladder animate-ladder-float">
+            {LADDER.map((c) => (
+              <div key={c.name} className={`ladder-card ${c.cls}`}>
                 <div>
-                  <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: '#ffffff', margin: 0 }}>
-                    NIT Trichy
-                  </h3>
-                  <p style={{ fontSize: '0.875rem', color: '#94a3b8', margin: '0.2rem 0 0 0' }}>
-                    Computer Science
-                  </p>
+                  <h3>{c.name}</h3>
+                  <p>{c.branch}</p>
                 </div>
-                <div style={{ textAlign: 'right' }}>
-                  <span style={{ fontSize: '1.25rem', fontWeight: '800', color: '#ffffff', display: 'block' }}>
-                    1,420
-                  </span>
-                  <span style={{ fontSize: '0.8rem', fontWeight: '600', color: '#f87171' }}>
-                    Reach
-                  </span>
+                <div className="lp-right">
+                  <span className="lp-rank">{c.rank}</span>
+                  <span className={`lp-tag ${c.cls}`}>{c.label}</span>
                 </div>
               </div>
-
-              {/* Card 2: Target */}
-              <div className="ladder-card target">
-                <div>
-                  <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: '#ffffff', margin: 0 }}>
-                    NIT Warangal
-                  </h3>
-                  <p style={{ fontSize: '0.875rem', color: '#94a3b8', margin: '0.2rem 0 0 0' }}>
-                    Electronics & Comm.
-                  </p>
-                </div>
-                <div style={{ textAlign: 'right' }}>
-                  <span style={{ fontSize: '1.25rem', fontWeight: '800', color: '#ffffff', display: 'block' }}>
-                    3,980
-                  </span>
-                  <span style={{ fontSize: '0.8rem', fontWeight: '600', color: '#f59e0b' }}>
-                    Target
-                  </span>
-                </div>
-              </div>
-
-              {/* Card 3: Safe */}
-              <div className="ladder-card safe">
-                <div>
-                  <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: '#ffffff', margin: 0 }}>
-                    IIIT Allahabad
-                  </h3>
-                  <p style={{ fontSize: '0.875rem', color: '#94a3b8', margin: '0.2rem 0 0 0' }}>
-                    Information Technology
-                  </p>
-                </div>
-                <div style={{ textAlign: 'right' }}>
-                  <span style={{ fontSize: '1.25rem', fontWeight: '800', color: '#ffffff', display: 'block' }}>
-                    6,210
-                  </span>
-                  <span style={{ fontSize: '0.8rem', fontWeight: '600', color: '#34d399' }}>
-                    Safe
-                  </span>
-                </div>
-              </div>
-
-
-            </div>
-
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Divider */}
-      <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.08)', width: '100%' }} />
+      <Divider />
 
-      {/* ---------------- 2. WHY STUDENTS USE IT ---------------- */}
-      <section style={{ padding: '5rem 1.5rem' }}>
-        <div className="wrap" style={{ width: '100%', maxWidth: '1200px', margin: '0 auto' }}>
-          
-          <h2 style={{
-            fontSize: '2.2rem',
-            fontWeight: '800',
-            color: '#ffffff',
-            letterSpacing: '-0.02em',
-            marginBottom: '2.5rem'
-          }}>
-            Why students use it
-          </h2>
-
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-            gap: '1.5rem'
-          }}>
-            
-            {/* Feature Card 1 */}
-            <div className="feature-card interactive-card" style={{
-              backgroundColor: 'rgba(15, 23, 42, 0.6)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
-              borderRadius: '12px',
-              padding: '1.75rem',
-              transition: 'all 0.35s ease'
-            }}>
-              <h3 style={{ fontSize: '1.15rem', fontWeight: '700', color: '#ffffff', marginBottom: '0.75rem' }}>
-                Trained on past cutoffs
-              </h3>
-              <p style={{ fontSize: '0.925rem', color: '#94a3b8', lineHeight: '1.6', margin: 0 }}>
-                Our model learns from previous JoSAA rounds, so results follow real closing ranks.
-              </p>
-            </div>
-
-            {/* Feature Card 2 */}
-            <div className="feature-card interactive-card" style={{
-              backgroundColor: 'rgba(15, 23, 42, 0.6)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
-              borderRadius: '12px',
-              padding: '1.75rem',
-              transition: 'all 0.35s ease'
-            }}>
-              <h3 style={{ fontSize: '1.15rem', fontWeight: '700', color: '#ffffff', marginBottom: '0.75rem' }}>
-                Made for your profile
-              </h3>
-              <p style={{ fontSize: '0.925rem', color: '#94a3b8', lineHeight: '1.6', margin: 0 }}>
-                Rank, category, gender and home state all change which seats you can get. We account for every one.
-              </p>
-            </div>
-
-            {/* Feature Card 3 */}
-            <div className="feature-card interactive-card" style={{
-              backgroundColor: 'rgba(15, 23, 42, 0.6)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
-              borderRadius: '12px',
-              padding: '1.75rem',
-              transition: 'all 0.35s ease'
-            }}>
-              <h3 style={{ fontSize: '1.15rem', fontWeight: '700', color: '#ffffff', marginBottom: '0.75rem' }}>
-                Safe, target or reach
-              </h3>
-              <p style={{ fontSize: '0.925rem', color: '#94a3b8', lineHeight: '1.6', margin: 0 }}>
-                Every option is tagged, so you can build a choice list with a sensible spread.
-              </p>
-            </div>
-
-            {/* Feature Card 4 */}
-            <div className="feature-card interactive-card" style={{
-              backgroundColor: 'rgba(15, 23, 42, 0.6)',
-              border: '1px solid rgba(255, 255, 255, 0.1)',
-              borderRadius: '12px',
-              padding: '1.75rem',
-              transition: 'all 0.35s ease'
-            }}>
-              <h3 style={{ fontSize: '1.15rem', fontWeight: '700', color: '#ffffff', marginBottom: '0.75rem' }}>
-                Branch-first search
-              </h3>
-              <p style={{ fontSize: '0.925rem', color: '#94a3b8', lineHeight: '1.6', margin: 0 }}>
-                Pick the branches you care about and see only those, across all institutes.
-              </p>
-            </div>
-
+      <section className="lp-section">
+        <div className="lp-inner">
+          <h2 className="lp-h2">Why students use it</h2>
+          <div className="lp-features">
+            {FEATURES.map(([title, text]) => (
+              <div key={title} className="feature-card interactive-card lp-card">
+                <h3>{title}</h3>
+                <p>{text}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Divider */}
-      <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.08)', width: '100%' }} />
+      <Divider />
 
-      {/* ---------------- 3. HOW IT WORKS ---------------- */}
-      <section id="how-it-works" style={{ padding: '5rem 1.5rem' }}>
-        <div className="wrap" style={{ width: '100%', maxWidth: '1200px', margin: '0 auto' }}>
-          
-          <h2 style={{
-            fontSize: '2.2rem',
-            fontWeight: '800',
-            color: '#ffffff',
-            letterSpacing: '-0.02em',
-            marginBottom: '3rem'
-          }}>
-            How it works
-          </h2>
-
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-            gap: '2.5rem'
-          }}>
-            
-            {/* Step 1 */}
-            <div style={{ display: 'flex', gap: '1.25rem', alignItems: 'flex-start' }}>
-              <div style={{
-                width: '36px',
-                height: '36px',
-                borderRadius: '50%',
-                backgroundColor: '#f59e0b',
-                color: '#0d1323',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontWeight: '800',
-                fontSize: '1.1rem',
-                flexShrink: 0,
-                marginTop: '0.2rem'
-              }}>
-                1
+      <section id="how-it-works" className="lp-section">
+        <div className="lp-inner">
+          <h2 className="lp-h2 lp-h2-lg">How it works</h2>
+          <div className="lp-steps">
+            {STEPS.map(([title, text], i) => (
+              <div key={title} className="lp-step">
+                <div className="lp-step-num">{i + 1}</div>
+                <div>
+                  <h3>{title}</h3>
+                  <p>{text}</p>
+                </div>
               </div>
-              <div>
-                <h3 style={{ fontSize: '1.15rem', fontWeight: '700', color: '#ffffff', marginBottom: '0.5rem' }}>
-                  Enter your details
-                </h3>
-                <p style={{ fontSize: '0.925rem', color: '#94a3b8', lineHeight: '1.5', margin: 0 }}>
-                  Rank, category, gender and home state.
-                </p>
-              </div>
-            </div>
-
-            {/* Step 2 */}
-            <div style={{ display: 'flex', gap: '1.25rem', alignItems: 'flex-start' }}>
-              <div style={{
-                width: '36px',
-                height: '36px',
-                borderRadius: '50%',
-                backgroundColor: '#f59e0b',
-                color: '#0d1323',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontWeight: '800',
-                fontSize: '1.1rem',
-                flexShrink: 0,
-                marginTop: '0.2rem'
-              }}>
-                2
-              </div>
-              <div>
-                <h3 style={{ fontSize: '1.15rem', fontWeight: '700', color: '#ffffff', marginBottom: '0.5rem' }}>
-                  Choose branches
-                </h3>
-                <p style={{ fontSize: '0.925rem', color: '#94a3b8', lineHeight: '1.5', margin: 0 }}>
-                  Select one or more you would like to study.
-                </p>
-              </div>
-            </div>
-
-            {/* Step 3 */}
-            <div style={{ display: 'flex', gap: '1.25rem', alignItems: 'flex-start' }}>
-              <div style={{
-                width: '36px',
-                height: '36px',
-                borderRadius: '50%',
-                backgroundColor: '#f59e0b',
-                color: '#0d1323',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                fontWeight: '800',
-                fontSize: '1.1rem',
-                flexShrink: 0,
-                marginTop: '0.2rem'
-              }}>
-                3
-              </div>
-              <div>
-                <h3 style={{ fontSize: '1.15rem', fontWeight: '700', color: '#ffffff', marginBottom: '0.5rem' }}>
-                  Review your list
-                </h3>
-                <p style={{ fontSize: '0.925rem', color: '#94a3b8', lineHeight: '1.5', margin: 0 }}>
-                  Filter by chance level and shortlist the seats that fit.
-                </p>
-              </div>
-            </div>
-
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Divider */}
-      <div style={{ borderTop: '1px solid rgba(255, 255, 255, 0.08)', width: '100%' }} />
+      <Divider />
 
-      {/* ---------------- 4. READY TO SEE YOUR OPTIONS CTA ---------------- */}
-      <section style={{ padding: '6rem 1.5rem', textAlign: 'center' }}>
-        <div className="wrap" style={{ width: '100%', maxWidth: '700px', margin: '0 auto' }}>
-          
-          <h2 style={{
-            fontSize: 'clamp(2rem, 4vw, 2.75rem)',
-            fontWeight: '800',
-            color: '#ffffff',
-            letterSpacing: '-0.02em',
-            marginBottom: '0.85rem'
-          }}>
-            Ready to see your options?
-          </h2>
-
-          <p style={{
-            fontSize: '1.1rem',
-            color: '#94a3b8',
-            marginBottom: '2.25rem',
-            fontWeight: '400'
-          }}>
-            It takes under a minute and needs no sign-up.
-          </p>
-
-          <div>
-            <Link
-              to="/predictor"
-              className="btn btn-yellow"
-              style={{
-                padding: '0.9rem 2.25rem',
-                fontSize: '1.1rem',
-                fontWeight: '700',
-                borderRadius: '10px',
-                display: 'inline-block'
-              }}
-            >
-              Find my colleges
-            </Link>
-          </div>
-
+      <section className="lp-cta">
+        <div className="lp-inner">
+          <h2>Ready to see your options?</h2>
+          <p>It takes under a minute and needs no sign-up.</p>
+          <Link to="/predictor" className="btn btn-yellow lp-btn-cta">Find my colleges</Link>
         </div>
       </section>
 

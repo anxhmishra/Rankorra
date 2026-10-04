@@ -1,0 +1,59 @@
+/* Landing page. "lp-" prefix keeps these away from the older classes in index.css.
+   Imported after index.css and animations.css, so it wins ties. */
+.lp-page { width: 100%; overflow-x: hidden; }
+.lp-inner { width: 100%; max-width: 1152px; margin: 0 auto; }
+.lp-divider { border-top: 1px solid rgba(255, 255, 255, 0.08); width: 100%; }
+
+.lp-hero { padding: 4.5rem 1.5rem 5rem; min-height: 80vh; display: flex; align-items: center; }
+/* min(320px, 100%) lets the column shrink on narrow phones instead of overflowing */
+.lp-hero-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(320px, 100%), 1fr)); gap: 3.5rem; align-items: center; }
+.lp-copy { max-width: 620px; }
+.lp-title { font-size: clamp(2.5rem, 5vw, 3.8rem); font-weight: 800; line-height: 1.1; color: #fff; letter-spacing: -0.03em; margin-bottom: 1.5rem; }
+.lp-lead { font-size: 1.15rem; line-height: 1.6; color: #94a3b8; margin-bottom: 2.25rem; }
+.lp-actions { display: flex; gap: 1rem; flex-wrap: wrap; }
+.lp-btn-main { padding: 0.85rem 1.75rem; font-size: 1.05rem; border-radius: 10px; }
+.lp-btn-ghost { background-color: transparent; border: 1px solid rgba(255, 255, 255, 0.2); color: #fff; font-weight: 600; }
+
+.lp-ladder { display: flex; flex-direction: column; gap: 1.25rem; }
+.ladder-card h3 { font-size: 1.1rem; font-weight: 700; color: #fff; margin: 0; }
+.ladder-card p { font-size: 0.875rem; color: #94a3b8; margin: 0.2rem 0 0; }
+.lp-right { text-align: right; }
+.lp-rank { display: block; font-size: 1.25rem; font-weight: 800; color: #fff; }
+.lp-tag { font-size: 0.8rem; font-weight: 600; }
+.lp-tag.reach { color: #f87171; } .lp-tag.target { color: #f59e0b; } .lp-tag.safe { color: #34d399; }
+
+.lp-section { padding: 5rem 1.5rem; scroll-margin-top: 4.5rem; } /* keeps the heading clear of the sticky navbar */
+.lp-h2 { font-size: 2.2rem; font-weight: 800; color: #fff; letter-spacing: -0.02em; margin-bottom: 2.5rem; }
+.lp-h2-lg { margin-bottom: 3rem; }
+
+.lp-features { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(250px, 100%), 1fr)); gap: 1.5rem; }
+.lp-card { background-color: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 12px; padding: 1.75rem; transition: all 0.35s ease; }
+.lp-card h3 { font-size: 1.15rem; font-weight: 700; color: #fff; margin-bottom: 0.75rem; }
+.lp-card p { font-size: 0.925rem; color: #94a3b8; line-height: 1.6; margin: 0; }
+
+.lp-steps { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); gap: 2.5rem; }
+.lp-step { display: flex; gap: 1.25rem; align-items: flex-start; }
+.lp-step-num { width: 36px; height: 36px; border-radius: 50%; background-color: #f59e0b; color: #0d1323; display: flex; align-items: center;
+  justify-content: center; font-weight: 800; font-size: 1.1rem; flex-shrink: 0; margin-top: 0.2rem; }
+.lp-step h3 { font-size: 1.15rem; font-weight: 700; color: #fff; margin-bottom: 0.5rem; }
+.lp-step p { font-size: 0.925rem; color: #94a3b8; line-height: 1.5; margin: 0; }
+
+.lp-cta { padding: 6rem 1.5rem; text-align: center; }
+.lp-cta .lp-inner { max-width: 652px; }
+.lp-cta h2 { font-size: clamp(2rem, 4vw, 2.75rem); font-weight: 800; color: #fff; letter-spacing: -0.02em; margin-bottom: 0.85rem; }
+.lp-cta p { font-size: 1.1rem; color: #94a3b8; margin: 0 auto 2.25rem; }
+.lp-btn-cta { padding: 0.9rem 2.25rem; font-size: 1.1rem; border-radius: 10px; }
+
+@media (max-width: 900px) {
+  .lp-hero { min-height: 0; padding: 2.5rem 1rem 3rem; }
+  .lp-hero-grid { gap: 2.5rem; }
+  .lp-section { padding: 3rem 1rem; }
+  .lp-h2, .lp-h2-lg { font-size: 1.7rem; margin-bottom: 1.75rem; }
+  .lp-cta { padding: 3.5rem 1rem; }
+}
+@media (max-width: 600px) {
+  .lp-title { font-size: 2.1rem; margin-bottom: 1.1rem; }
+  .lp-lead { font-size: 1.05rem; margin-bottom: 1.75rem; }
+  .lp-actions .btn { flex: 1 1 100%; }
+  .lp-card { padding: 1.4rem; }
+}
