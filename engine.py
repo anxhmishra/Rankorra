@@ -56,3 +56,5 @@ def optimize_choices(user_rank, user_category, user_gender, preferred_branch, qu
     ))
 
     return results
+
+generate_optimized_choices = optimize_choices
