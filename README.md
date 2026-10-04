@@ -8,7 +8,7 @@ HOSTED ON theseatwise.vercel.app
 
 It combines historical JoSAA cutoff data, machine learning, rank-based analysis, and institute prioritization to generate relevant **college and branch recommendations** for students.
 
-Instead of manually analyzing thousands of cutoff records, theSeatWise processes the data and presents the information in a simpler, more actionable format.
+Instead of manually analyzing thousands of cutoff records, SeatWise processes the data and presents the information in a simpler, more actionable format.
 
 > **Turn your JEE rank into smarter college choices.**
 
@@ -16,7 +16,7 @@ Instead of manually analyzing thousands of cutoff records, theSeatWise processes
 
 ## 🌐 Live Website
 
-🚀 **theSeatWise is hosted on Vercel and available online.**
+🚀 **SeatWise is hosted on Vercel and available online.**
 
 **Website:**  
 https://theseatwise.vercel.app/
@@ -27,7 +27,7 @@ https://theseatwise.vercel.app/
 
 ### 🎯 Personalized College & Branch Recommendations
 
-theSeatWise uses a student's counselling profile to identify relevant college and branch possibilities.
+SeatWise uses a student's counselling profile to identify relevant college and branch possibilities.
 
 The system considers parameters such as:
 
@@ -44,7 +44,7 @@ The resulting recommendations are based on historical JoSAA cutoff patterns and 
 
 ### 🤖 Machine Learning-Based Prediction
 
-TheSeatWise uses **CatBoost Regression** to learn patterns from historical closing-rank data.
+SeatWise uses **CatBoost Regression** to learn patterns from historical closing-rank data.
 
 The current model uses:
 
@@ -88,7 +88,7 @@ This allows the platform to work with admission trends across:
 
 Recommendations are not based solely on numerical rank proximity.
 
-theSeatWise uses an institute hierarchy to prioritize results:
+SeatWise uses an institute hierarchy to prioritize results:
 
 ```text
 IIT
@@ -132,7 +132,7 @@ Institute hierarchy and other recommendation rules are also considered.
 
 ---
 
-# 🧠 How theSeatWise Works
+# 🧠 How SeatWise Works
 
 The overall system can be represented as:
 
@@ -180,7 +180,7 @@ The machine-learning model is therefore **one part of a larger recommendation sy
                  │
                  ▼
 ┌─────────────────────────────────┐
-│       theSeatWise Frontend      │
+│       SeatWise Frontend      │
 │                                 │
 │ React Interface                 │
 │ Predictor                       │
@@ -469,7 +469,7 @@ Initial range:
 
 If an option in a subsequent range belongs to a higher-priority institute category than an option in the current range, the higher-priority institute can be ranked ahead.
 
-This allows theSeatWise to balance:
+This allows SeatWise to balance:
 
 - Rank proximity
 - College type
@@ -488,7 +488,7 @@ rather than relying on a single numerical comparison.
 A simplified representation of the project:
 
 ```text
-theSeatWise/
+SeatWise/
 │
 ├── src/
 │   ├── pages/
@@ -516,7 +516,7 @@ The project structure may evolve as development continues.
 
 # 🌐 Deployment
 
-theSeatWise is deployed using **Vercel**.
+SeatWise is deployed using **Vercel**.
 
 The production application is available directly through the web, so users do not need to install or configure the project locally.
 
@@ -623,7 +623,7 @@ This would allow the recommendation system to continuously benefit from new hist
 
 # ⚠️ Disclaimer
 
-theSeatWise provides **data-driven estimates and recommendations** and does not guarantee admission.
+SeatWise provides **data-driven estimates and recommendations** and does not guarantee admission.
 
 Actual JoSAA seat allocation depends on factors including:
 
@@ -644,7 +644,7 @@ Students should always verify information using official JoSAA sources before ma
 
 # 🎯 Project Objective
 
-theSeatWise was built with one goal:
+SeatWise was built with one goal:
 
 > **Make JoSAA counselling simpler, smarter, and more data-driven.**
 
@@ -675,6 +675,6 @@ The platform combines historical admission data, machine learning, and recommend
        Final College Options
 ```
 
-# 🚀 theSeatWise
+# 🚀 SeatWise
 
 ### **Turn your rank into smarter choices.**
