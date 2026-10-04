@@ -3,8 +3,8 @@ import React, { useState } from 'react';
 
 const faqs = [
   {
-    q: "How does the SeatWise Predictor calculate my college chances?",
-    a: "SeatWise parses official JoSAA and CSAB closing rank data. It compares your rank, category, quota, and gender pool against historical closing ranks to assign Safe (95%+), Target (68%), and Reach (40%) probabilities."
+    q: "How does the Rankorra Predictor calculate my college chances?",
+    a: "Rankorra parses official JoSAA and CSAB closing rank data. It compares your rank, category, quota, and gender pool against historical closing ranks to assign Safe (95%+), Target (68%), and Reach (40%) probabilities."
   },
   {
     q: "What is the difference between Home State (HS) and Other State (OS) quotas?",
@@ -19,8 +19,8 @@ const faqs = [
     a: "Click 'Shortlist' on any result card in the Predictor. Then head over to the Choice List page where you can reorder choices using the arrow buttons and export the entire list as a CSV file for official JoSAA choice filling."
   },
   {
-    q: "Is SeatWise affiliated with NTA or JoSAA?",
-    a: "No, SeatWise is an independent reference engine built to assist engineering candidates during college counselling."
+    q: "Is Rankorra affiliated with NTA or JoSAA?",
+    a: "No, Rankorra is an independent reference engine built to assist engineering candidates during college counselling."
   }
 ];
 

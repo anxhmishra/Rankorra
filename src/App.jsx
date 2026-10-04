@@ -22,7 +22,7 @@ export default function App() {
 
       <footer>
         <div className="wrap" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <span style={{ fontWeight: '700', fontSize: '0.95rem' }}>SeatWise</span>
+          <span style={{ fontWeight: '700', fontSize: '0.95rem' }}>Rankorra</span>
           <span style={{ color: 'var(--text-muted)', fontSize: '0.85rem' }}>
 Trained on Official JoSAA/CSAB Data
           </span>
