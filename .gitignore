@@ -1,6 +1,80 @@
-backend/venv/
-venv/
-*.pyc
-__pycache__/
+# ================================
+# Node / Vite
+# ================================
+
 node_modules/
+dist/
 .vite/
+
+# ================================
+# Environment / Secrets
+# ================================
+
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Keep example environment file
+!.env.example
+
+# ================================
+# Python
+# ================================
+
+__pycache__/
+*.py[cod]
+*.pyo
+
+.venv/
+venv/
+env/
+ENV/
+
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# ================================
+# CatBoost / ML training artifacts
+# ================================
+
+catboost_info/
+
+# ================================
+# Logs
+# ================================
+
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# ================================
+# OS
+# ================================
+
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ================================
+# IDE / Editor
+# ================================
+
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ================================
+# Temporary files
+# ================================
+
+*.tmp
+*.temp
+
+# Local accidental files
+New Text Document.txt

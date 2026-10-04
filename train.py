@@ -1,160 +1,88 @@
 import os
 import joblib
-import numpy as np
 import pandas as pd
-from catboost import CatBoostRegressor
-from sklearn.metrics import mean_absolute_error, r2_score
+import numpy as np
+from catboost import CatBoostRegressor, Pool
+from sklearn.model_selection import train_test_split
 
-os.makedirs("models", exist_ok=True)
-os.makedirs("data", exist_ok=True)
+CSV_PATH = r"data\cutoffsfinal.csv"  # Updated to match your exact file location
+BUNDLE_PATH = "model_bundle.pkl"
 
-data_path = os.path.join("data", "cutoffsfinal.csv")
-if not os.path.exists(data_path):
-  print("❌ Error: Place your 'cutoffsfinal.csv' inside the 'data/' folder first!")
-  exit()
+def train():
+    if not os.path.exists(CSV_PATH):
+        raise FileNotFoundError(f"Dataset '{CSV_PATH}' not found in the current directory.")
 
-print("Loading dataset for Elite CatBoost + Quantile Regression training...")
-df = pd.read_csv(data_path, low_memory=False)
-df.columns = df.columns.str.strip().str.lower().str.replace(" ", "_")
+    print(f"[*] Loading dataset from {CSV_PATH}...")
+    df = pd.read_csv(CSV_PATH)
 
-df["closing_rank"] = pd.to_numeric(df["closing_rank"], errors="coerce")
-df["year"] = pd.to_numeric(df["year"], errors="coerce")
-df["round"] = pd.to_numeric(df["round"], errors="coerce")
-df = df.dropna(
-    subset=[
-        "closing_rank",
-        "round",
-        "year",
-        "institute",
-        "academic_program_name",
-    ]
-)
+    # Standardize column names
+    col_map = {c: c.strip().lower().replace(" ", "_") for c in df.columns}
+    df.rename(columns=col_map, inplace=True)
 
-# --- FIX: Fill missing values in categorical columns to prevent NaN errors ---
-categorical_features = [
-    "institute",
-    "academic_program_name",
-    "quota",
-    "seat_type",
-    "gender",
-]
-for col in categorical_features:
-  df[col] = df[col].fillna("UNKNOWN").astype(str)
+    # 1. Purge Architecture and Planning rows
+    initial_len = len(df)
+    branch_col = 'branch' if 'branch' in df.columns else 'academic_program_name'
+    df = df[~df[branch_col].astype(str).str.contains('Architecture|Planning', case=False, na=False)].copy()
+    print(f"[+] Dropped {initial_len - len(df)} Architecture & Planning rows.")
 
-# Feature 1: Separate IITs from NITs/IIITs
-df["is_iit"] = (
-    df["institute"].str.contains("Indian Institute of Technology", case=False)
-).astype(int)
+    # 2. Tag Institute Types and Exam Type
+    inst_col = 'institute' if 'institute' in df.columns else 'institute_name'
+    is_iit = df[inst_col].str.contains('Indian Institute of Technology', case=False, na=False) & \
+             ~df[inst_col].str.contains('Information', case=False, na=False)
 
-# Feature 2: Rank Velocity (Year-over-Year Drift)
-df = df.sort_values(by=["year", "round"])
-df["prev_year_closing_rank"] = df.groupby([
-    "institute",
-    "academic_program_name",
-    "quota",
-    "seat_type",
-    "gender",
-    "round",
-])["closing_rank"].shift(1)
-df["rank_velocity"] = (df["closing_rank"] - df["prev_year_closing_rank"]).fillna(
-    0
-)
+    df['exam_type'] = np.where(is_iit, 'JEE_ADVANCED', 'JEE_MAINS')
 
-features = [
-    "round",
-    "year",
-    "quota",
-    "seat_type",
-    "gender",
-    "is_iit",
-    "institute",
-    "academic_program_name",
-    "rank_velocity",
-    "prev_year_closing_rank",
-]
+    # 3. Clean numeric ranks (Raw string r'\d+' applied to fix Python 3.12 syntax warning)
+    rank_col = 'closing_rank' if 'closing_rank' in df.columns else 'close_rank'
+    df[rank_col] = pd.to_numeric(df[rank_col].astype(str).str.replace(',', '').str.extract(r'(\d+)')[0], errors='coerce')
+    df = df.dropna(subset=[rank_col]).copy()
+    df[rank_col] = df[rank_col].astype(int)
 
-df["log_closing_rank"] = np.log1p(df["closing_rank"])
+    # 4. Feature Selection
+    cat_features = [inst_col, branch_col, 'quota', 'category', 'gender', 'exam_type']
+    for col in cat_features:
+        if col not in df.columns:
+            # Map standard alternative column names
+            if col == 'category' and 'seat_type' in df.columns:
+                df['category'] = df['seat_type']
+            elif col == 'gender' and 'gender_pool' in df.columns:
+                df['gender'] = df['gender_pool']
 
-max_year = df["year"].max()
-train_df = df[df["year"] < max_year]
-val_df = df[df["year"] == max_year]
+    df[cat_features] = df[cat_features].fillna("NA").astype(str)
 
-X_train = train_df[features]
-y_train = train_df["log_closing_rank"]
-X_val = val_df[features]
-y_val_actual = val_df["closing_rank"]
+    X = df[cat_features]
+    y = df[rank_col]
 
-print("Training CatBoost Median Regressor (Expected Ranks)...")
-model_median = CatBoostRegressor(
-    iterations=600,
-    learning_rate=0.05,
-    depth=6,
-    loss_function="RMSE",
-    cat_features=categorical_features,
-    random_seed=42,
-    verbose=100,
-)
-model_median.fit(
-    X_train,
-    y_train,
-    eval_set=(X_val, val_df["log_closing_rank"]),
-    early_stopping_rounds=50,
-)
+    X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=0.15, random_state=42)
 
-print(
-    "Training CatBoost Quantile Models for Confidence Bounds (10th and 90th"
-    " Percentiles)..."
-)
-model_lower = CatBoostRegressor(
-    iterations=400,
-    learning_rate=0.05,
-    depth=6,
-    loss_function="Quantile:alpha=0.1",
-    cat_features=categorical_features,
-    random_seed=42,
-    verbose=False,
-)
-model_lower.fit(X_train, y_train)
+    print(f"[*] Training CatBoost model on {len(X_train)} samples across {len(cat_features)} features...")
+    train_pool = Pool(X_train, y_train, cat_features=cat_features)
+    val_pool = Pool(X_val, y_val, cat_features=cat_features)
 
-model_upper = CatBoostRegressor(
-    iterations=400,
-    learning_rate=0.05,
-    depth=6,
-    loss_function="Quantile:alpha=0.9",
-    cat_features=categorical_features,
-    random_seed=42,
-    verbose=False,
-)
-model_upper.fit(X_train, y_train)
+    model = CatBoostRegressor(
+        iterations=600,
+        learning_rate=0.08,
+        depth=6,
+        loss_function='RMSE',
+        verbose=100,
+        random_seed=42
+    )
 
-# Validation Metrics
-preds_log = model_median.predict(X_val)
-preds_actual = np.expm1(preds_log)
-mae = mean_absolute_error(y_val_actual, preds_actual)
-r2 = r2_score(y_val_actual, preds_actual)
+    model.fit(train_pool, eval_set=val_pool, early_stopping_rounds=40)
 
-print("========================================")
-print(f"🎯 Elite CatBoost Validation Results ({max_year}):")
-print(f"   - Mean Absolute Error (MAE): ±{mae:.2f} ranks")
-print(f"   - R² Accuracy Score: {r2:.4f}")
-print("========================================")
+    # 5. Save model bundle
+    bundle = {
+        "model": model,
+        "cat_features": cat_features,
+        "features": {
+            "institute_col": inst_col,
+            "branch_col": branch_col,
+            "rank_col": rank_col
+        }
+    }
 
-print("Retraining final models on 100% of historical data...")
-X_full = df[features]
-y_full = df["log_closing_rank"]
+    joblib.dump(bundle, BUNDLE_PATH)
+    print(f"[✓] Model trained and saved successfully to '{BUNDLE_PATH}'")
 
-model_median.fit(X_full, y_full, verbose=False)
-model_lower.fit(X_full, y_full, verbose=False)
-model_upper.fit(X_full, y_full, verbose=False)
-
-bundle = {
-    "model_median": model_median,
-    "model_lower": model_lower,
-    "model_upper": model_upper,
-    "validation_mae": mae,
-    "features": features,
-    "cat_features": categorical_features,
-}
-
-joblib.dump(bundle, "models/cutoff_model_bundle.pkl")
-print("✅ Elite CatBoost + Quantile bundle saved successfully!")
+if __name__ == "__main__":
+    train()
