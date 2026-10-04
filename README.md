@@ -1,6 +1,6 @@
 HOSTED ON theseatwise.vercel.app
 
-# 🎓 theSeatWise
+# 🎓 SeatWise
 
 ### AI-Powered JoSAA College & Branch Prediction Platform
 
