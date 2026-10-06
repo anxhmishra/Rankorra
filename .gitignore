@@ -5,7 +5,8 @@
 node_modules/
 dist/
 .vite/
-
+backend/data/insights_cache.json
+backend/.env
 # ================================
 # Environment / Secrets
 # ================================

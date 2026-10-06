@@ -1,0 +1,12 @@
+.insights-toggle { margin-top: 0.4rem; background: none; border: 1px solid var(--card-border); color: var(--accent-yellow); border-radius: 99px;
+  padding: 0.2rem 0.75rem; font: inherit; font-size: 0.75rem; font-weight: 600; cursor: pointer; min-height: 32px; }
+.insights-toggle:focus-visible, .insights-link:focus-visible { outline: 2px solid var(--accent-yellow); outline-offset: 2px; }
+.insights-panel { margin-top: 0.6rem; padding: 0.8rem; border-radius: 8px; background: rgba(255, 255, 255, 0.04); font-size: 0.85rem; font-weight: 400; color: #d1d5db; }
+.insights-panel p { margin: 0; }
+.insights-grid { display: grid; grid-template-columns: auto 1fr; gap: 0.25rem 1rem; margin: 0; }
+.insights-grid dt { color: var(--text-muted); }
+.insights-grid dd { margin: 0; color: #fff; font-weight: 600; }
+.insights-note { margin-top: 0.6rem !important; font-size: 0.72rem; opacity: 0.75; line-height: 1.4; }
+.insights-note a, .insights-link { color: var(--accent-yellow); }
+.insights-link { background: none; border: 0; padding: 0; font: inherit; text-decoration: underline; cursor: pointer; }
+@media (pointer: coarse) { .insights-toggle { min-height: 44px; padding: 0.4rem 1rem; } }
