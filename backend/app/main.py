@@ -4,6 +4,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.schemas import PredictRequest
 import app.model_service as ms
 from app.mapper import to_api
+import insights_router  
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -12,6 +13,9 @@ async def lifespan(app: FastAPI):
     yield
 
 app = FastAPI(lifespan=lifespan)
+
+# Mount TinyFish insights router
+app.include_router(insights_router.router)  # <--- Include TinyFish router
 
 app.add_middleware(
     CORSMiddleware,
