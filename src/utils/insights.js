@@ -1,12 +1,26 @@
-const BASE = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
-export const insightsEnabled = Boolean(BASE); // the feature needs the backend, so it hides itself without one
+export const insightsEnabled = true;
 
-export async function fetchInsights(institute, signal) {
-  const res = await fetch(`${BASE}/api/college-insights?institute=${encodeURIComponent(institute)}`, { signal });
-  if (!res.ok) {
-    let msg = 'Could not load insights right now.';
-    try { const j = await res.json(); if (typeof j.detail === 'string') msg = j.detail; } catch { /* keep default */ }
-    throw new Error(msg);
+// Uses VITE_BACKEND_URL in production or defaults to local relative path
+const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || '';
+
+export async function fetchInsights(instituteName) {
+  if (!instituteName) {
+    throw new Error('Institute name required');
   }
-  return res.json();
+
+  const response = await fetch(
+    `${API_BASE_URL}/api/insights?institute=${encodeURIComponent(instituteName)}`
+  );
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    throw new Error(errorData.error || 'Failed to load insights for this institute.');
+  }
+
+  const contentType = response.headers.get('content-type');
+  if (!contentType || !contentType.includes('application/json')) {
+    throw new Error('Server returned invalid response. Wait!!');
+  }
+
+  return await response.json();
 }

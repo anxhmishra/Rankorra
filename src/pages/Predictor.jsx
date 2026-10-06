@@ -1,6 +1,7 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { loadCutoffsData, getPredictions, BRANCH_OPTIONS } from '../utils/predictionEngine';
 import { readShortlist, writeShortlist } from '../utils/shortlist';
+import InstituteInsights from '../components/InstituteInsights';
 import '../styles/animations.css';
 
 const FILTERS = ['All', 'Safe', 'Target', 'Reach'];
@@ -24,12 +25,27 @@ export default function Predictor() {
   const [preferredBranch, setPreferredBranch] = useState('');
 
   const [results, setResults] = useState(null);
-  const [searched, setSearched] = useState(null); // the inputs used for the results on screen
+  const [searched, setSearched] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [activeFilter, setActiveFilter] = useState('All');
   const [shortlisted, setShortlisted] = useState(readShortlist);
   const resultsRef = useRef(null);
+
+  // Re-sync shortlist state whenever changes occur anywhere in the app
+  useEffect(() => {
+    const syncShortlist = () => {
+      setShortlisted(readShortlist());
+    };
+
+    window.addEventListener('shortlistUpdated', syncShortlist);
+    window.addEventListener('storage', syncShortlist);
+
+    return () => {
+      window.removeEventListener('shortlistUpdated', syncShortlist);
+      window.removeEventListener('storage', syncShortlist);
+    };
+  }, []);
 
   const handlePredict = async (e) => {
     e.preventDefault();
@@ -40,7 +56,6 @@ export default function Predictor() {
     try {
       const cutoffsData = await loadCutoffsData();
 
-      // Blank Advanced rank MUST become null: predictionEngine.js uses null to completely exclude IITs.
       const normalizedAdvancedRank = advancedRank.trim() === '' ? null : parseInt(advancedRank, 10);
       const parsedMains = parseInt(mainsRank, 10);
 
@@ -53,12 +68,9 @@ export default function Predictor() {
         preferredBranch,
       });
 
-      // IMPORTANT: do NOT sort here. predictionEngine.js already applies the strict hierarchy
-      // IIT -> NIT -> IIIT -> GFTI and sorts within each tier. Re-sorting by Safe/Target/Reach would destroy it.
       setResults(matches);
       setSearched({ mains: parsedMains, advanced: normalizedAdvancedRank, category, quota });
 
-      // On phones the results sit below the form, so scroll them into view
       if (window.matchMedia('(max-width: 900px)').matches) {
         requestAnimationFrame(() => resultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }));
       }
@@ -182,8 +194,11 @@ export default function Predictor() {
                   <table className="results-table">
                     <thead>
                       <tr>
-                        <th>Institute</th><th>Branch</th>
-                        <th className="nowrap">Closing Rank</th><th className="nowrap">Chance</th><th className="nowrap">Action</th>
+                        <th>Institute</th>
+                        <th>Branch</th>
+                        <th className="nowrap">Closing Rank</th>
+                        <th className="nowrap">Chance</th>
+                        <th className="nowrap">Action</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -198,10 +213,13 @@ export default function Predictor() {
                             <td className="nowrap">
                               <span className={`chance-tag ${tag}`}>{item.tag} {item.prob ? `(${item.prob})` : ''}</span>
                             </td>
-                            <td className="cell-action nowrap">
-                              <button type="button" className="btn btn-secondary shortlist-btn" disabled={isSaved(item)} onClick={() => handleShortlist(item)}>
-                                {isSaved(item) ? 'Saved' : '+ Shortlist'}
-                              </button>
+                            <td className="cell-action">
+                              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center', justifyContent: 'flex-end' }}>
+                                <InstituteInsights institute={item.institute} />
+                                <button type="button" className="btn btn-secondary shortlist-btn" disabled={isSaved(item)} onClick={() => handleShortlist(item)}>
+                                  {isSaved(item) ? 'Saved' : '+ Shortlist'}
+                                </button>
+                              </div>
                             </td>
                           </tr>
                         );

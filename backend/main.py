@@ -16,11 +16,24 @@ app = FastAPI(
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=[
+    "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "https://rankorra.vercel.app",],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+@app.get("/api/college-insights")
+async def get_college_insights(institute: str):
+    # Your TinyFish / insights extraction logic
+    return {
+        "institute": institute,
+        "avg_package": "18.5 LPA",
+        "highest_package": "52 LPA",
+        "top_recruiter": "Google, Microsoft, Amazon",
+        "fee_structure": "₹5.5 Lakhs (4 Years)"
+    }
 
 DATA_PATH = r"data\cutoffsfinal.csv"
 BUNDLE_PATH = "model_bundle.pkl"
