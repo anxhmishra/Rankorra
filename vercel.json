@@ -5,6 +5,10 @@
   "outputDirectory": "dist",
   "rewrites": [
     {
+      "source": "/api/:path*",
+      "destination": "[https://rankorra-backend.onrender.com](https://rankorra-backend.onrender.com)/api/:path*"
+    },
+    {
       "source": "/(.*)",
       "destination": "/index.html"
     }
