@@ -1,4 +1,0 @@
-*.py
-models/
-data/
-requirements*.txt
