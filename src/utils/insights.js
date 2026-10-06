@@ -1,26 +1,27 @@
 export const insightsEnabled = true;
 
-// Uses VITE_BACKEND_URL in production or defaults to local relative path
-const API_BASE_URL = import.meta.env.VITE_BACKEND_URL || '';
-
 export async function fetchInsights(instituteName) {
   if (!instituteName) {
-    throw new Error('Institute name required');
+    throw new Error('Institute name is required');
   }
 
-  const response = await fetch(
-    `${API_BASE_URL}/api/insights?institute=${encodeURIComponent(instituteName)}`
-  );
+  const response = await fetch(`/api/insights?institute=${encodeURIComponent(instituteName)}`);
+  const contentType = response.headers.get('content-type') || '';
+
+  // Handle non-JSON server responses (e.g., 404 or Render cold starts)
+  if (!contentType.includes('application/json')) {
+    if (response.status === 404) {
+      throw new Error('API route not found. Ensure FastAPI endpoint is /api/insights');
+    }
+    throw new Error('Backend server is waking up or unreachable. Please try again.');
+  }
+
+  const data = await response.json();
 
   if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    throw new Error(errorData.error || 'Failed to load insights for this institute.');
+    // FastAPI outputs error messages in the "detail" key
+    throw new Error(data.detail || data.error || 'Failed to fetch insights.');
   }
 
-  const contentType = response.headers.get('content-type');
-  if (!contentType || !contentType.includes('application/json')) {
-    throw new Error('Server returned invalid response. Wait!!');
-  }
-
-  return await response.json();
+  return data;
 }
